@@ -2,7 +2,7 @@
 
 ## How to start? 
 
-Check more documentation at https://developers.dokobit.com
+Check more documentation at https://beta.dokobit.com/api/doc
 
 Request developer access token [here](https://www.dokobit.com/developers/request-token).
 
@@ -14,4 +14,4 @@ Build project & Run.
 
 ## Console command
 
-`DokobitDotnetExample.exe {fileName} {phone} {personalCode}`
+`DokobitDotnetExample.exe {fileName} {email} {personalCode}`

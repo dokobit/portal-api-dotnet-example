@@ -59,7 +59,7 @@ namespace DokobitDotnetExample
 
         }
 
-        public static SigningCreateResponse CreateSigning(byte[] document, string phone, string code)
+        public static SigningCreateResponse CreateSigning(byte[] document, string email, string code)
         {
             using (var client = new HttpClient())
             {
@@ -76,11 +76,16 @@ namespace DokobitDotnetExample
                         "files[0][digest]");
                     content.Add(new StringContent("John"), "signers[0][name]");
                     content.Add(new StringContent("Doe"), "signers[0][surname]");
-                    content.Add(new StringContent(phone), "signers[0][phone]");
-                    content.Add(new StringContent(code), "signers[0][code]");
-                    content.Add(new StringContent("lt"), "signers[0][country_code]");
+                    content.Add(new StringContent(email), "signers[0][email]");
+                    content.Add(new StringContent("false"), "require_account");
+                    if (code.Length > 0)
+                    {
+                        // if you do not want to specify exact person for document signing and require login in case require_account=false is used comment these lines 
+                        content.Add(new StringContent(code), "signers[0][code]"); 
+                        content.Add(new StringContent("lt"), "signers[0][country_code]");
+                    }
 
-                    
+
                     using (
                         var message =
                             client.PostAsync(Endpoint.SigningCreate(Api.accessToken),
@@ -128,20 +133,20 @@ namespace DokobitDotnetExample
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
 
             string fileName = args.Length > 0 ? args[0] : @"../../test.pdf"; // example pdf file to sign
-            string phone = args.Length > 1 ? args[1] : "+37060000666"; // enter phone with country code
-            string code = args.Length > 2 ? args[2] : "50001018865"; // enter personal code
+            string email = args.Length > 1 ? args[1] : "test+dotnet@dokobit.com"; // enter signers email to receive invitation
+            string code = args.Length > 2 ? args[2] : ""; // enter personal code, please note current variable is country_code=lt
 
             byte[] contentData = System.IO.File.ReadAllBytes(fileName);
-            var response = CreateSigning(contentData, phone, code);
+            var response = CreateSigning(contentData, email, code);
 
             if (response.Status == "ok")
             {
 
-                Console.WriteLine("Dokobit Portal API signing creation example.");
+                Console.WriteLine("Dokobit Portal API signing creation example:");
  
-                Console.WriteLine("\nIf you want to get Your signing upload status, please visit: " + Endpoint.SigningStatus(response.Token, Api.accessToken));
+                Console.WriteLine("\nIf you want to check Your signing status, use: " + Endpoint.SigningStatus(response.Token, Api.accessToken));
 
-                Console.WriteLine("\nIf you want to download Your signing, please visit: " + Endpoint.SigningDownload(response.Token, Api.accessToken));
+                Console.WriteLine("\nIf you want to download Your signing, please visit in browser: " + Endpoint.SigningDownload(response.Token, Api.accessToken));
 
             }
             else
